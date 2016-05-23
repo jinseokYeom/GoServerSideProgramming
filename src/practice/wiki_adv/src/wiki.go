@@ -2,14 +2,14 @@ package main
 
 import (
     "fmt"
-    "server"
+    "model"
     "net/http"
 )
 
 func main() {
-    http.HandleFunc("/view/", server.MakeHandler(server.ViewHandler))
-    http.HandleFunc("/edit/", server.MakeHandler(server.EditHandler))
-    http.HandleFunc("/save/", server.MakeHandler(server.SaveHandler))
+    http.HandleFunc("/view/", model.MakeHandler(model.ViewHandler))
+    http.HandleFunc("/edit/", model.MakeHandler(model.EditHandler))
+    http.HandleFunc("/save/", model.MakeHandler(model.SaveHandler))
 
     fmt.Println("Server running...")
 
