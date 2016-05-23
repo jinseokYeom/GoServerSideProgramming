@@ -51,6 +51,7 @@ func decryptedLoadPage(key []byte, title string) (*Page, error) {
         return nil, err
     }
 
+    // decrypt the content
     decrypted, err := AEScrypto.AESDecrypt(key, body)
     if err != nil {
         return nil, err
@@ -69,6 +70,7 @@ func (p *Page) save() error {
 func (p *Page) encryptedSave(key []byte) error {
     fileName := p.Title + ".txt"
     
+    // encrypt the content
     encryptedBody, err := AEScrypto.AESEncrypt(key, p.Body)
     if err != nil {
         return err
