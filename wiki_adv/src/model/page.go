@@ -14,7 +14,6 @@ const (
 )
 
 var (
-    key, _      = AEScrypto.RandomKey()
     templates   = template.Must(template.ParseFiles(EDIT, VIEW))
     validPath   = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 )
@@ -69,7 +68,7 @@ func (p *Page) save() error {
 // encrypt and save page to a text file
 func (p *Page) encryptedSave(key []byte) error {
     fileName := p.Title + ".txt"
-    
+   
     // encrypt the content
     encryptedBody, err := AEScrypto.AESEncrypt(key, p.Body)
     if err != nil {
@@ -104,6 +103,12 @@ func MakeHandler(fn func (http.ResponseWriter,
 
 // view handler
 func ViewHandler(w http.ResponseWriter, r *http.Request, title string) {
+    // get the key from data folder
+    key, err := ioutil.ReadFile("data/key")
+    if err != nil {
+        panic(err)
+    }
+    
     p, err := decryptedLoadPage(key, title)
     if err != nil {
         // if page is not found, redirect to edit and create new
@@ -116,6 +121,12 @@ func ViewHandler(w http.ResponseWriter, r *http.Request, title string) {
 
 // edit handler
 func EditHandler(w http.ResponseWriter, r *http.Request, title string) {
+    // get the key from data folder
+    key, err := ioutil.ReadFile("data/key")
+    if err != nil {
+        key = AEScrypto.RandomKey()
+    }
+
     p, err := decryptedLoadPage(key, title)
     if err != nil {
         p = NewPage(title, nil)
@@ -129,7 +140,12 @@ func SaveHandler(w http.ResponseWriter, r *http.Request, title string) {
     body := r.FormValue("body")
     p := NewPage(title, []byte(body))
     
-    err := p.encryptedSave(key)
+    key, err := ioutil.ReadFile("data/key")    
+    if err != nil {
+        panic(err)
+    }
+
+    err = p.encryptedSave(key)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
